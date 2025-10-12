@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pothole Routing Map — College Priority</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+  <style>
+    #map { height: 70vh; width: 100%; }
+    .autocomplete-suggestions {
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      z-index: 1000;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 100%;
+    }
+    .autocomplete-suggestions div {
+      padding: 5px; cursor: pointer;
+    }
+    .autocomplete-suggestions div:hover {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-3">
+  <h2>Pothole Routing Map – India-First Search</h2>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="mb-2 position-relative">
+        <input id="fromInput" class="form-control" placeholder="From (or use My Location)">
+        <div id="fromSuggestions" class="autocomplete-suggestions"></div>
+      </div>
+      <div class="mb-2 position-relative">
+        <input id="toInput" class="form-control" placeholder="To (select pothole or place)">
+        <div id="toSuggestions" class="autocomplete-suggestions"></div>
+      </div>
+      <button id="routeBtn" class="btn btn-success w-100 mb-2">🧭 Show Route</button>
+      <button onclick="locateUser()" class="btn btn-outline-primary w-100 mb-3">📍 Use My Location</button>
+      <hr>
+      <label>Filter by State</label>
+      <select id="stateSelect" class="form-select mb-2"></select>
+      <label>Filter by City</label>
+      <select id="citySelect" class="form-select mb-2"></select>
+      <button onclick="loadPotholes()" class="btn btn-primary w-100 mb-3">🔍 Filter Potholes</button>
+      <div><strong id="count">Loading...</strong></div>
+    </div>
+    <div class="col-md-9"><div id="map"></div></div>
+    <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+      <h3 class="font-medium text-gray-800 mb-2">Pothole Analysis</h3>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="w-4 h-4 rounded-full bg-green-500 border border-black"></span>
+        <span class="text-sm">🟢 Minor Potholes (&lt;10cm)</span>
+      </div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="w-4 h-4 rounded-full bg-orange-500 border border-black"></span>
+        <span class="text-sm">🟠 Moderate Potholes (10-20cm)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-4 h-4 rounded-full bg-red-500 border border-black"></span>
+        <span class="text-sm">🔴 Severe Potholes (&gt;20cm)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+<script>
+const college = { name: "Amity University, Nayasarai, Ranchi", lat: 23.34371, lon: 85.24450 };
+const map = L.map('map').setView([college.lat, college.lon], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+L.marker([college.lat, college.lon]).addTo(map).bindPopup(college.name).openPopup();
+
+let markerGroup = L.markerClusterGroup({
+  zoomToBoundsOnClick: false
+}).on('clusterclick', function (a) {
+  const bounds = a.layer.getBounds();
+  if (map.getZoom() < 18) {
+    map.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 0.5 });
+  }
+});
+
+let allData = [], routeControl = null, fromCoords = null, toCoords = null;
+
+const fromInput = document.getElementById('fromInput'),
+      toInput = document.getElementById('toInput'),
+      fromSuggestions = document.getElementById('fromSuggestions'),
+      toSuggestions = document.getElementById('toSuggestions'),
+      stateSelect = document.getElementById('stateSelect'),
+      citySelect = document.getElementById('citySelect'),
+      countDisplay = document.getElementById('count'),
+      routeBtn = document.getElementById('routeBtn');
+
+function fetchPotholes() {
+  return fetch('/api/potholes').then(r => r.json());
+}
+
+function populateFilters(data) {
+  const states = [...new Set(data.map(p => p.state))].filter(Boolean).sort();
+  stateSelect.innerHTML = '<option value="">All States</option>' + states.map(s => `<option>${s}</option>`).join('');
+}
+
+stateSelect.onchange = () => {
+  const cities = [...new Set(allData.filter(p => p.state === stateSelect.value).map(p => p.city))].filter(Boolean).sort();
+  citySelect.innerHTML = '<option>All Cities</option>' + cities.map(c => `<option>${c}</option>`).join('');
+};
+
+function loadPotholes() {
+  markerGroup.clearLayers();
+  const params = new URLSearchParams();
+  if (stateSelect.value) params.append('state', stateSelect.value);
+  if (citySelect.value) params.append('city', citySelect.value);
+  fetch('/api/potholes?' + params).then(r => r.json()).then(data => {
+    allData = data;
+    countDisplay.textContent = `Showing ${data.length} potholes`;
+    data.forEach(p => {
+      const color = p.depth >= 20 ? 'red' : p.depth >= 10 ? 'orange' : 'green';
+      const popupImg = p.image ? `<br><img src="${p.image}" width="100">` : '';
+      const m = L.circleMarker([p.lat, p.lon], {
+        radius: 8, fillColor: color, color: '#000', weight: 1, fillOpacity: 0.8
+      }).bindPopup(`<strong>${p.city || 'Pothole'}</strong><br>Depth: ${p.depth} cm<br>Status: ${p.status}${popupImg}`)
+        .on('click', () => {
+          toInput.value = p.city || `${p.lat}, ${p.lon}`;
+          toCoords = [p.lat, p.lon];
+        });
+      markerGroup.addLayer(m);
+    });
+  }).catch(_ => countDisplay.textContent = "Error loading potholes.");
+  map.addLayer(markerGroup);
+}
+
+function locateUser() {
+  if (!navigator.geolocation) return alert("Cannot detect location.");
+  navigator.geolocation.getCurrentPosition(pos => {
+    fromCoords = [pos.coords.latitude, pos.coords.longitude];
+    fromInput.value = `${fromCoords[0]}, ${fromCoords[1]}`;
+    L.circleMarker(fromCoords, {
+      radius: 10, fillColor: '#3388ff', color: '#000', weight: 2, fillOpacity: 0.7
+    }).bindPopup("You are here").addTo(map).openPopup();
+    map.setView(fromCoords, 15);
+  }, () => alert("Unable to detect your location."));
+}
+
+function parseCoordsFromInput(input) {
+  const parts = input.value.split(',').map(x => parseFloat(x.trim()));
+  return parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1]) ? parts : null;
+}
+
+function startRouting() {
+  if (!fromCoords) fromCoords = parseCoordsFromInput(fromInput);
+  if (!toCoords) toCoords = parseCoordsFromInput(toInput);
+
+  if (!fromCoords || !toCoords) {
+    alert("Set both From and To locations.");
+    console.warn("Missing coordinates:", { fromCoords, toCoords });
+    return;
+  }
+
+  if (routeControl) map.removeControl(routeControl);
+
+  console.log("Routing from", fromCoords, "to", toCoords);
+
+  routeControl = L.Routing.control({
+    waypoints: [L.latLng(fromCoords), L.latLng(toCoords)],
+    routeWhileDragging: true,
+    router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' })
+  }).addTo(map);
+}
+routeBtn.onclick = startRouting;
+
+function setupAutocomplete(input, suggestionsBox, setCoords) {
+  input.addEventListener('input', async () => {
+    const q = input.value.trim();
+    let suggestions = [];
+
+    if (q && college.name.toLowerCase().includes(q.toLowerCase())) {
+      suggestions.push({ name: college.name, lat: college.lat, lon: college.lon });
+    }
+
+    if (q.length >= 2) {
+      const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=5&bbox=68.1,6.5,97.4,35.7`);
+      const j = await res.json();
+      const indianOnly = j.features
+        .filter(f => f.properties?.country === 'India')
+        .map(f => ({
+          name: `${f.properties.name || ''}, ${f.properties.city || ''}, ${f.properties.state || ''}`,
+          lat: f.geometry.coordinates[1],
+          lon: f.geometry.coordinates[0]
+        }));
+      suggestions = suggestions.concat(indianOnly);
+    }
+
+    suggestionsBox.innerHTML = '';
+    suggestions.forEach(s => {
+      const div = document.createElement('div');
+      div.textContent = s.name;
+      div.onclick = () => {
+        input.value = s.name;
+        suggestionsBox.innerHTML = '';
+        setCoords([parseFloat(s.lat), parseFloat(s.lon)]);
+      };
+      suggestionsBox.appendChild(div);
+    });
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
+      suggestionsBox.innerHTML = '';
+    }
+  });
+}
+
+setupAutocomplete(fromInput, fromSuggestions, coords => fromCoords = coords);
+setupAutocomplete(toInput, toSuggestions, coords => toCoords = coords);
+
+fetchPotholes().then(data => {
+  allData = data;
+  populateFilters(data);
+  loadPotholes();
+});
+</script>
+</body>
+</html>

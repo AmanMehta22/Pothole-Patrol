@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pothole Patrol - Report Road Hazards</title>
+        <style>
+            @import url(https://fonts.googleapis.com/css2?family=Lato&display=swap);
+            @import url(https://fonts.googleapis.com/css2?family=Open+Sans&display=swap);
+            @import url(https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined);
+        </style>
+    </head>
+    <body>
+        <div id="webcrumbs">
+            <div class="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen flex flex-col">
+                <header class="bg-gradient-to-r from-primary-700 to-primary-800 text-white py-6 px-4 shadow-lg">
+                    <div class="container mx-auto text-center">
+                        <div class="flex items-center justify-center gap-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="h-12 w-12" aria-label="Pothole Patrol Official Logo">
+  <!-- Shield background (symbolizes authority) -->
+  <path fill="#005BAA" d="M50 5L10 25v25c0 20 40 45 40 45s40-25 40-45V25L50 5z"/>
+  
+  <!-- Road with pothole -->
+  <path fill="#333" d="M20 55h60v10H20z"/>
+  <path fill="#555" d="M40 55a10 5 0 0 1 20 0v5H40v-5z"/>
+  
+  <!-- Radar waves (detection theme) -->
+  <circle cx="50" cy="40" r="15" fill="none" stroke="#FFF" stroke-width="2" stroke-dasharray="1,3"/>
+  <circle cx="50" cy="40" r="8" fill="none" stroke="#FFF" stroke-width="2"/>
+  <path fill="#FFF" d="M50 35l5 10h-10l5-10z"/>
+  
+  <!-- Optional: Add "GOV" or initials -->
+  <text x="50" y="85" font-size="8" text-anchor="middle" fill="#FFF" font-family="Arial, sans-serif" font-weight="bold">AUTHORITY</text>
+</svg>
+                            <h1 class="text-3xl font-bold flex items-center justify-center gap-2">
+                                Pothole Patrol
+                            </h1>
+                        </div>
+                        <p class="text-primary-100 mt-2 italic">Making your commute safer, one pothole at a time.</p>
+                    </div>
+                </header>
+                <nav class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+                    <div class="container mx-auto px-4">
+                        <div class="flex justify-between items-center py-3">
+                            <a
+                                href="/"
+                                class="flex items-center gap-2 text-primary-600 font-semibold text-lg hover:text-primary-700 transition-colors"
+                            >
+                                <span class="text-xl">🏠</span> Home
+                            </a>
+                            <details class="md:hidden relative">
+                                <summary class="list-none flex items-center p-2 cursor-pointer">
+                                    <span class="material-symbols-outlined text-gray-700">menu</span>
+                                </summary>
+                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                                    <a href="/map" class="block px-4 py-2 text-gray-700 hover:bg-primary-50">
+                                        <i class="fas fa-map-marked-alt mr-2 text-primary-500"></i> Map
+                                    </a>
+                                    <a href="/report" class="block px-4 py-2 text-gray-700 hover:bg-primary-50">
+                                        <i class="fas fa-camera mr-2 text-primary-500"></i> Report
+                                    </a>
+                                </div>
+                            </details>
+                            <div class="hidden md:flex space-x-6">
+                                <a
+                                    href="/map"
+                                    class="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
+                                >
+                                    <i class="fas fa-map-marked-alt"></i> Map
+                                </a>
+                                <a
+                                    href="/report"
+                                    class="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
+                                >
+                                    <i class="fas fa-camera"></i> Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+                <main class="flex-grow container mx-auto px-4 py-8">
+                    <div class="bg-primary-50 rounded-xl p-6 mb-10 shadow-sm flex items-center">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3474/3474048.png" alt="Road Safety" class="h-24 w-24 mr-6 hidden md:block">
+                        <div>
+                            <h2 class="text-2xl font-bold text-primary-800 mb-3">Help Make Our Roads Better</h2>
+                            <p class="text-gray-600 max-w-3xl">
+                                Pothole Patrol is a community-driven initiative to identify and track road hazards. Join
+                                thousands of citizens who are making a difference in their communities.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div
+                            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                        >
+                            <div class="p-6">
+                                <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" alt="Map Icon" class="w-12 h-12 mb-4">
+                                <h3 class="text-xl font-bold mb-2">View Reported Potholes</h3>
+                                <p class="text-gray-600 mb-4">
+                                    See potholes around your area and check their severity and repair status.
+                                </p>
+                                <a
+                                    href="/map"
+                                    class="inline-block bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300"
+                                >
+                                    Go to Map
+                                </a>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                        >
+                            <div class="p-6">
+                                <img src="https://cdn-icons-png.flaticon.com/512/157/157933.png" alt="Camera Icon" class="w-12 h-12 mb-4">
+                                <h3 class="text-xl font-bold mb-2">Report a New Pothole</h3>
+                                <p class="text-gray-600 mb-4">
+                                    Spotted a pothole? Upload a photo and mark the location to alert authorities.
+                                </p>
+                                <a
+                                    href="/report"
+                                    class="inline-block bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300"
+                                >
+                                    Submit Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-16">
+                        <h2 class="text-2xl font-bold text-center mb-10">How It Works</h2>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <div class="text-center">
+                                <div class="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mx-auto mb-4">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2983/2983067.png" alt="Camera" class="w-8 h-8">
+                                </div>
+                                <h3 class="font-bold mb-2">Take a Photo</h3>
+                                <p class="text-gray-600">Snap a picture of the pothole you've found</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mx-auto mb-4">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2776/2776067.png" alt="Location" class="w-8 h-8">
+                                </div>
+                                <h3 class="font-bold mb-2">Mark Location</h3>
+                                <p class="text-gray-600">Tag the exact position on our interactive map</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mx-auto mb-4">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2883/2883833.png" alt="Notification" class="w-8 h-8">
+                                </div>
+                                <h3 class="font-bold mb-2">Authorities Notified</h3>
+                                <p class="text-gray-600">Local road departments are alerted automatically</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mx-auto mb-4">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Checkmark" class="w-8 h-8">
+                                </div>
+                                <h3 class="font-bold mb-2">Track Repairs</h3>
+                                <p class="text-gray-600">Follow the progress until the pothole is fixed</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="bg-gray-800 text-white py-8 px-4">
+                    <div class="container mx-auto">
+                        <div class="grid md:grid-cols-3 gap-8">
+                            <div>
+                                <div class="flex items-center mb-4">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png" alt="Logo" class="h-8 w-8 mr-2">
+                                    <h3 class="text-lg font-bold">Pothole Patrol</h3>
+                                </div>
+                                <p class="text-gray-300 text-sm">
+                                    A community initiative to improve road safety and infrastructure maintenance.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+                                <ul class="space-y-2 text-gray-300">
+                                    <li>
+                                        <a href="/about" class="hover:text-primary-300 transition-colors">About Us</a>
+                                    </li>
+                                    <li>
+                                        <a href="/contact" class="hover:text-primary-300 transition-colors">Contact</a>
+                                    </li>
+                                    <li>
+                                        <a href="/privacy" class="hover:text-primary-300 transition-colors"
+                                            >Privacy Policy</a
+                                        >
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold mb-4">Connect With Us</h3>
+                                <div class="flex space-x-4">
+                                    <a
+                                        href="#"
+                                        class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary-600 transition-colors"
+                                    >
+                                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="w-5 h-5">
+                                    </a>
+                                    <a
+                                        href="#"
+                                        class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary-600 transition-colors"
+                                    >
+                                        <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" class="w-5 h-5">
+                                    </a>
+                                    <a
+                                        href="#"
+                                        class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary-600 transition-colors"
+                                    >
+                                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="w-5 h-5">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400 text-sm">
+                            Made with ❤️ by Pothole Patrol Authority | Amity University Jharkhand | 2025
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                content: ["./src/**/*.{html,js}"],
+                theme: {
+                    name: "Bluewave",
+                    fontFamily: {
+                        sans: [
+                            "Open Sans",
+                            "ui-sans-serif",
+                            "system-ui",
+                            "sans-serif",
+                            '"Apple Color Emoji"',
+                            '"Segoe UI Emoji"',
+                            '"Segoe UI Symbol"',
+                            '"Noto Color Emoji"'
+                        ]
+                    },
+                    extend: {
+                        fontFamily: {
+                            title: [
+                                "Lato",
+                                "ui-sans-serif",
+                                "system-ui",
+                                "sans-serif",
+                                '"Apple Color Emoji"',
+                                '"Segoe UI Emoji"',
+                                '"Segoe UI Symbol"',
+                                '"Noto Color Emoji"'
+                            ],
+                            body: [
+                                "Open Sans",
+                                "ui-sans-serif",
+                                "system-ui",
+                                "sans-serif",
+                                '"Apple Color Emoji"',
+                                '"Segoe UI Emoji"',
+                                '"Segoe UI Symbol"',
+                                '"Noto Color Emoji"'
+                            ]
+                        },
+                        colors: {
+                            neutral: {
+                                50: "#f7f7f7",
+                                100: "#eeeeee",
+                                200: "#e0e0e0",
+                                300: "#cacaca",
+                                400: "#b1b1b1",
+                                500: "#999999",
+                                600: "#7f7f7f",
+                                700: "#676767",
+                                800: "#545454",
+                                900: "#464646",
+                                950: "#282828"
+                            },
+                            primary: {
+                                50: "#f3f1ff",
+                                100: "#e9e5ff",
+                                200: "#d5cfff",
+                                300: "#b7a9ff",
+                                400: "#9478ff",
+                                500: "#7341ff",
+                                600: "#631bff",
+                                700: "#611bf8",
+                                800: "#4607d0",
+                                900: "#3c08aa",
+                                950: "#220174",
+                                DEFAULT: "#611bf8"
+                            }
+                        }
+                    },
+                    fontSize: {
+                        xs: ["12px", {lineHeight: "19.200000000000003px"}],
+                        sm: ["14px", {lineHeight: "21px"}],
+                        base: ["16px", {lineHeight: "25.6px"}],
+                        lg: ["18px", {lineHeight: "27px"}],
+                        xl: ["20px", {lineHeight: "28px"}],
+                        "2xl": ["24px", {lineHeight: "31.200000000000003px"}],
+                        "3xl": ["30px", {lineHeight: "36px"}],
+                        "4xl": ["36px", {lineHeight: "41.4px"}],
+                        "5xl": ["48px", {lineHeight: "52.800000000000004px"}],
+                        "6xl": ["60px", {lineHeight: "66px"}],
+                        "7xl": ["72px", {lineHeight: "75.60000000000001px"}],
+                        "8xl": ["96px", {lineHeight: "100.80000000000001px"}],
+                        "9xl": ["128px", {lineHeight: "134.4px"}]
+                    },
+                    borderRadius: {
+                        none: "0px",
+                        sm: "6px",
+                        DEFAULT: "12px",
+                        md: "18px",
+                        lg: "24px",
+                        xl: "36px",
+                        "2xl": "48px",
+                        "3xl": "72px",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        0: "0px",
+                        1: "4px",
+                        2: "8px",
+                        3: "12px",
+                        4: "16px",
+                        5: "20px",
+                        6: "24px",
+                        7: "28px",
+                        8: "32px",
+                        9: "36px",
+                        10: "40px",
+                        11: "44px",
+                        12: "48px",
+                        14: "56px",
+                        16: "64px",
+                        20: "80px",
+                        24: "96px",
+                        28: "112px",
+                        32: "128px",
+                        36: "144px",
+                        40: "160px",
+                        44: "176px",
+                        48: "192px",
+                        52: "208px",
+                        56: "224px",
+                        60: "240px",
+                        64: "256px",
+                        72: "288px",
+                        80: "320px",
+                        96: "384px",
+                        px: "1px",
+                        0.5: "2px",
+                        1.5: "6px",
+                        2.5: "10px",
+                        3.5: "14px"
+                    }
+                },
+                plugins: [],
+                important: "#webcrumbs"
+            }
+        </script>
+    </body>
+</html>
