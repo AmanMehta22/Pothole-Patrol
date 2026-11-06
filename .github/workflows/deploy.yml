@@ -1,0 +1,40 @@
+# Deploys the Flask app to Render on every push to main.
+# One-time setup (2 min):
+#   1. On render.com: New + -> Blueprint -> pick this repo -> Apply (it reads render.yaml).
+#   2. In the service's Settings tab, copy the "Deploy Hook URL".
+#   3. On GitHub: repo Settings -> Secrets and variables -> Actions ->
+#      New repository secret -> Name: RENDER_DEPLOY_HOOK_URL, Value: that URL.
+# After that, every push to main triggers a live deployment here.
+name: Deploy to Render
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Trigger Render deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check setup
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Secret RENDER_DEPLOY_HOOK_URL is not set yet. Deployment requires a one-time setup:"
+            echo "  1. Create the Web Service on render.com from this repo (Blueprint / render.yaml)."
+            echo "  2. Copy the service's Deploy Hook URL (Dashboard -> Settings)."
+            echo "  3. GitHub repo -> Settings -> Secrets and variables -> Actions -> New repository secret:"
+            echo "     Name: RENDER_DEPLOY_HOOK_URL | Value: the Deploy Hook URL"
+            exit 1
+          fi
+
+      - name: Trigger deploy
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Triggering Render deploy (commit ${GITHUB_SHA::7})..."
+          RESP=$(curl -fsS -X POST "$HOOK" -H "Content-Type: application/json" -d '{"clearCache":"do_not_clear"}')
+          echo "Render response: $RESP"
+          echo "Deploy triggered. Watch progress at https://dashboard.render.com"
